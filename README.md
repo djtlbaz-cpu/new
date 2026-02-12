@@ -43,4 +43,34 @@ LEGAL_GENERATION_LIMIT=64
 - Use `uvicorn app.main:app --host 0.0.0.0 --port 8000` behind nginx for production.
 - When moving to the cloud, mount `models/` as a persistent volume so new checkpoints propagate across releases.
 
+## Deploying the Backend on Railway
+
+Production-ready with CPU-only PyTorch (~200 MB).
+
+| Setting | Value |
+|---------|-------|
+| **Root Directory** | `backend` |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+
+The `Procfile` defines: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+### Environment Variables
+
+| Variable | Value |
+|----------|-------|
+| `CORS_ORIGINS` | `https://your-frontend.netlify.app,http://localhost:5173` |
+| `MODEL_DIR` | `models` |
+| `PORT` | *(set automatically by Railway)* |
+
+### Deploy Steps
+
+1. Go to [railway.app](https://railway.app) and sign in with GitHub
+2. Click **New Project** → **Deploy from GitHub repo**
+3. Select the `djtlbaz-cpu/new` repository
+4. Set **Root Directory** to `backend`
+5. Add the environment variables above
+6. Railway will auto-detect the `Procfile` and deploy
+7. Verify health at `https://<your-app>.up.railway.app/health`
+
 For more detail on each module see inline docstrings within `app/services` and `training/`.
