@@ -1,6 +1,6 @@
 [phases.install]
 cmds = [
-    "python -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir setuptools && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt && /opt/venv/bin/python -c 'import pkg_resources; print(\"setuptools OK\")'"
+    "python -m venv /opt/venv && /opt/venv/bin/pip install --force-reinstall --no-cache-dir setuptools && /opt/venv/bin/pip list | grep -i setup && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt && /opt/venv/bin/python -c 'import setuptools; print(setuptools.__file__)' && /opt/venv/bin/python -c 'import pkg_resources; print(\"setuptools OK\")'"
 ]
 
 [phases.build]
