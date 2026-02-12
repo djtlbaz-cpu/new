@@ -17,6 +17,19 @@ from ..schemas import (
 from .database import get_database_gateway
 
 
+def _db_available() -> bool:
+    """Check if a Supabase client is configured."""
+    return get_database_gateway().is_enabled()
+
+
+def _table_missing_msg(table: str) -> str:
+    return (
+        f"Table '{table}' does not exist yet. "
+        "Run the migration: python run_migration.py "
+        "(or paste supabase_migration.sql into your Supabase SQL Editor)"
+    )
+
+
 # ── Tier definitions (in-memory mirror of subscription_tiers table) ──
 
 TIERS: dict[str, TierInfo] = {
@@ -113,18 +126,27 @@ def register_user(display_name: Optional[str] = None, email: Optional[str] = Non
 
     try:
         result = db.client.table("users").insert(user_payload).execute()
-    except (RuntimeError, ValueError) as exc:
+    except Exception as exc:
+        msg = str(exc)
+        if "PGRST205" in msg or "schema cache" in msg:
+            raise HTTPException(status_code=503, detail=_table_missing_msg("users")) from exc
         raise HTTPException(status_code=400, detail=f"Registration failed: {exc}") from exc
 
     user = result.data[0]
     user_id = user["id"]
 
     # Auto-assign free tier
-    db.client.table("user_subscriptions").insert({
-        "user_id": user_id,
-        "tier_id": "free",
-        "status": "active",
-    }).execute()
+    try:
+        db.client.table("user_subscriptions").insert({
+            "user_id": user_id,
+            "tier_id": "free",
+            "status": "active",
+        }).execute()
+    except Exception as exc:
+        msg = str(exc)
+        if "PGRST205" in msg or "schema cache" in msg:
+            raise HTTPException(status_code=503, detail=_table_missing_msg("user_subscriptions")) from exc
+        raise HTTPException(status_code=400, detail=f"Subscription setup failed: {exc}") from exc
 
     return user
 
@@ -138,15 +160,21 @@ def get_user_tier(user_id: str) -> TierInfo:
     if not db.is_enabled():
         return TIERS["free"]
 
-    result = (
-        db.client.table("user_subscriptions")
-        .select("tier_id")
-        .eq("user_id", user_id)
-        .eq("status", "active")
-        .order("created_at", desc=True)
-        .limit(1)
-        .execute()
-    )
+    try:
+        result = (
+            db.client.table("user_subscriptions")
+            .select("tier_id")
+            .eq("user_id", user_id)
+            .eq("status", "active")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:
+        msg = str(exc)
+        if "PGRST205" in msg or "schema cache" in msg:
+            return TIERS["free"]  # Graceful fallback
+        raise
 
     if result.data:
         tier_id = result.data[0]["tier_id"]
@@ -189,15 +217,21 @@ def get_user_subscription(user_id: str) -> Optional[UserSubscription]:
     if not db.is_enabled():
         return None
 
-    result = (
-        db.client.table("user_subscriptions")
-        .select("*")
-        .eq("user_id", user_id)
-        .eq("status", "active")
-        .order("created_at", desc=True)
-        .limit(1)
-        .execute()
-    )
+    try:
+        result = (
+            db.client.table("user_subscriptions")
+            .select("*")
+            .eq("user_id", user_id)
+            .eq("status", "active")
+            .order("created_at", desc=True)
+            .limit(1)
+            .execute()
+        )
+    except Exception as exc:
+        msg = str(exc)
+        if "PGRST205" in msg or "schema cache" in msg:
+            return None  # Graceful fallback
+        raise
 
     if result.data:
         row = result.data[0]
@@ -223,16 +257,21 @@ def get_usage(user_id: str) -> UsageInfo:
     db = get_database_gateway()
     count = 0
     if db.is_enabled():
-        result = (
-            db.client.table("generation_usage")
-            .select("count")
-            .eq("user_id", user_id)
-            .eq("period", period)
-            .limit(1)
-            .execute()
-        )
-        if result.data:
-            count = result.data[0]["count"]
+        try:
+            result = (
+                db.client.table("generation_usage")
+                .select("count")
+                .eq("user_id", user_id)
+                .eq("period", period)
+                .limit(1)
+                .execute()
+            )
+            if result.data:
+                count = result.data[0]["count"]
+        except Exception as exc:
+            msg = str(exc)
+            if "PGRST205" not in msg and "schema cache" not in msg:
+                raise
 
     return UsageInfo(
         user_id=user_id,
@@ -341,13 +380,19 @@ def get_user_addons(user_id: str) -> list[AddonInfo]:
     if not db.is_enabled():
         return []
 
-    result = (
-        db.client.table("user_addons")
-        .select("addon_id")
-        .eq("user_id", user_id)
-        .eq("status", "active")
-        .execute()
-    )
+    try:
+        result = (
+            db.client.table("user_addons")
+            .select("addon_id")
+            .eq("user_id", user_id)
+            .eq("status", "active")
+            .execute()
+        )
+    except Exception as exc:
+        msg = str(exc)
+        if "PGRST205" in msg or "schema cache" in msg:
+            return []  # Graceful fallback
+        raise
 
     return [
         ADDONS[row["addon_id"]]

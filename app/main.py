@@ -35,7 +35,32 @@ async def startup_event() -> None:
 
 @app.get("/health")
 async def healthcheck() -> dict:
-    return {"status": "ok"}
+    from .services.database import get_database_gateway
+    db = get_database_gateway()
+    return {"status": "ok", "supabase": db.is_enabled()}
+
+
+@app.get("/admin/db-status")
+async def db_status() -> dict:
+    """Check which Supabase tables exist."""
+    from .services.database import get_database_gateway
+    db = get_database_gateway()
+    if not db.is_enabled():
+        return {"connected": False, "tables": {}}
+
+    tables = [
+        "users", "subscription_tiers", "user_subscriptions",
+        "generation_usage", "addons", "user_addons", "content_ownership",
+    ]
+    status = {}
+    for t in tables:
+        try:
+            db.client.table(t).select("*").limit(1).execute()
+            status[t] = "ok"
+        except Exception:
+            status[t] = "missing"
+
+    return {"connected": True, "tables": status, "ready": all(v == "ok" for v in status.values())}
 
 
 if __name__ == "__main__":
