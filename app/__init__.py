@@ -1,1 +1,1 @@
-from .main import app  # noqa: F401
+# App package - FastAPI app is loaded via uvicorn app.main:app

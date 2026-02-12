@@ -22,7 +22,7 @@ uvicorn app.main:app --reload --port 8000
 
 Configure environment variables in a `.env` file:
 
-```
+```env
 SUPABASE_URL="https://<your-project>.supabase.co"
 SUPABASE_SERVICE_KEY="service-role-key"
 CORS_ORIGINS="http://localhost:5173,https://beat-addicts.app"

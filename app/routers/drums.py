@@ -9,5 +9,5 @@ router = APIRouter()
 
 @router.post("/generate/drums")
 async def generate_drums() -> dict:
-  pattern = create_drum_pattern()
-  return {"success": True, "pattern": pattern}
+    pattern = create_drum_pattern()
+    return {"success": True, "pattern": pattern}
