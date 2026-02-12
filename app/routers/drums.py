@@ -29,3 +29,5 @@ async def generate_drums(request: DrumGenerateRequest = DrumGenerateRequest()) -
 
     pattern = create_drum_pattern()
     return {"success": True, "pattern": pattern, **tier_meta}
+
+SUPABASE_SERVICE_KEY = "eyJhbGciOi...your-full-key-here..."
