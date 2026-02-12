@@ -47,21 +47,21 @@ LEGAL_GENERATION_LIMIT=64
 
 Production-ready with CPU-only PyTorch (~200 MB).
 
-| Setting | Value |
-|---------|-------|
-| **Root Directory** | `backend` |
-| **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
+| Setting            | Value                                              |
+| ------------------ | -------------------------------------------------- |
+| **Root Directory** | `backend`                                          |
+| **Build Command**  | `pip install -r requirements.txt`                  |
+| **Start Command**  | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 
 The `Procfile` defines: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
 ### Environment Variables
 
-| Variable | Value |
-|----------|-------|
+| Variable       | Value                                                     |
+| -------------- | --------------------------------------------------------- |
 | `CORS_ORIGINS` | `https://your-frontend.netlify.app,http://localhost:5173` |
-| `MODEL_DIR` | `models` |
-| `PORT` | *(set automatically by Railway)* |
+| `MODEL_DIR`    | `models`                                                  |
+| `PORT`         | _(set automatically by Railway)_                          |
 
 ### Deploy Steps
 

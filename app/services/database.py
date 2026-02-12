@@ -15,7 +15,11 @@ class DatabaseGateway:
 
     def __post_init__(self) -> None:
         if self.client is None and settings.supabase_url and settings.supabase_service_key:
-            self.client = create_client(settings.supabase_url, settings.supabase_service_key)
+            try:
+                self.client = create_client(settings.supabase_url, settings.supabase_service_key)
+            except (RuntimeError, ValueError, Exception) as exc:
+                print(f"[Supabase] Failed to initialize client: {exc}")
+                self.client = None
         self.enabled = self.client is not None
 
     def is_enabled(self) -> bool:

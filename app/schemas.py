@@ -1,5 +1,112 @@
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field, ConfigDict
+from enum import Enum
+
+
+# ── Subscription Tiers ──────────────────────────────────────
+
+
+class TierID(str, Enum):
+    FREE = "free"
+    BASIC = "basic"
+    STUDIO = "studio"
+
+
+class TierInfo(BaseModel):
+    id: str
+    name: str
+    price_cents: int
+    monthly_generations: int
+    owns_creations: bool
+    full_tool_access: bool
+    description: Optional[str] = None
+
+
+class SubscriptionStatus(str, Enum):
+    ACTIVE = "active"
+    CANCELLED = "cancelled"
+    PAST_DUE = "past_due"
+
+
+class UserSubscription(BaseModel):
+    id: Optional[str] = None
+    user_id: str
+    tier_id: str
+    status: str = "active"
+    started_at: Optional[str] = None
+    expires_at: Optional[str] = None
+
+
+class SubscribeRequest(BaseModel):
+    user_id: str
+    tier_id: TierID
+
+
+class SubscriptionResponse(BaseModel):
+    success: bool = True
+    subscription: UserSubscription
+    tier: TierInfo
+
+
+# ── Add-ons ─────────────────────────────────────────────────
+
+
+class AddonInfo(BaseModel):
+    id: str
+    name: str
+    price_cents: int
+    description: Optional[str] = None
+    requires_tier: Optional[str] = None
+    active: bool = True
+
+
+class UserAddon(BaseModel):
+    id: Optional[str] = None
+    user_id: str
+    addon_id: str
+    status: str = "active"
+    started_at: Optional[str] = None
+
+
+class AddonSubscribeRequest(BaseModel):
+    user_id: str
+    addon_id: str
+
+
+class AddonResponse(BaseModel):
+    success: bool = True
+    addon: UserAddon
+    info: AddonInfo
+
+
+# ── Generation Usage ────────────────────────────────────────
+
+
+class UsageInfo(BaseModel):
+    user_id: str
+    period: str
+    count: int
+    limit: int
+    remaining: int
+    tier_id: str
+    owns_creations: bool
+
+
+# ── User Registration ───────────────────────────────────────
+
+
+class RegisterRequest(BaseModel):
+    display_name: Optional[str] = None
+    email: Optional[str] = None
+
+
+class UserProfile(BaseModel):
+    id: str
+    display_name: Optional[str] = None
+    email: Optional[str] = None
+    tier: TierInfo
+    addons: List[AddonInfo] = Field(default_factory=list)
+    usage: Optional[UsageInfo] = None
 
 
 class UserContext(BaseModel):

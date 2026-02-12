@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .routers import feedback, generation, learning, training, drums
+from .routers import feedback, generation, learning, training, drums, subscriptions
 from .services.inference import get_inference_engine
 
 app = FastAPI(title="Beat Addicts AI Engine", version="0.1.0", description="Local-first AI engine for Pulse")
@@ -24,6 +24,7 @@ app.include_router(generation.router, prefix="/generate", tags=["generation"])
 app.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
 app.include_router(training.router, prefix="/training", tags=["training"])
 app.include_router(learning.router, prefix="/learning", tags=["learning"])
+app.include_router(subscriptions.router, prefix="/subscriptions", tags=["subscriptions"])
 
 
 @app.on_event("startup")

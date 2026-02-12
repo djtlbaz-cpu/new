@@ -1,1 +1,1 @@
-from . import generation, feedback, training, learning, drums  # noqa: F401
+from . import generation, feedback, training, learning, drums, subscriptions  # noqa: F401

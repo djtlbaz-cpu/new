@@ -25,7 +25,7 @@ class InferenceEngine:
 
     async def generate_pattern(self, section: str, request: GenerationRequest) -> Dict[str, Any]:
         await self.ensure_loaded()
-        guard_inference_request(request.user)
+        tier_meta = guard_inference_request(request.user)
 
         steps = request.steps or settings.default_steps
         seed_value = request.seed or random.randint(0, 10**6)
@@ -47,6 +47,7 @@ class InferenceEngine:
                 "workflow": "pulse-local-v1",
                 "style": request.style,
                 "bpm": request.bpm,
+                **tier_meta,
             },
         }
 
@@ -64,7 +65,7 @@ class InferenceEngine:
 
     async def generate_arrangement(self, request: GenerationRequest, summary: List[Dict[str, Any]] | None = None) -> Dict[str, Any]:
         await self.ensure_loaded()
-        guard_inference_request(request.user)
+        tier_meta = guard_inference_request(request.user)
 
         seed_value = request.seed or random.randint(0, 10**6)
         rng = random.Random(seed_value)
