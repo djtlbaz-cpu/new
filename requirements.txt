@@ -10,5 +10,6 @@ numpy==2.4.2
 pretty_midi==0.2.10
 setuptools<75.0.0
 websockets>=13,<16
+stripe>=14.3.0
 pytest==8.3.4
 torch==2.10.0+cpu

@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     model_dir: str = str(Path(__file__).resolve().parent.parent / "models")
     supabase_url: str | None = None
     supabase_service_key: str | None = None
+    stripe_secret_key: str | None = None
+    stripe_webhook_secret: str | None = None
     legal_generation_limit: int = 64
     legal_generation_window_minutes: int = 60
     default_steps: int = 16
