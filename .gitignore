@@ -1,11 +1,46 @@
-__pycache__/
-*.pyc
-.venv/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables
 .env
-*.egg-info/
-dist/
-build/
-.pytest_cache/
-uvicorn.log
-uvicorn_run.log
-tmp_hit_endpoint.py
+.env.local
+.env.production
+
+# Build outputs
+build
+coverage
+
+# Python
+*.pyc
+__pycache__
+venv
+.venv
+backend/.venv
+backend/.env
+
+# OS
+Thumbs.db
+*.png

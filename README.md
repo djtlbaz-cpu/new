@@ -1,51 +1,48 @@
-# Beat Addicts Local AI Engine
+# Beat Addicts - AI-Powered DAW
 
-This backend powers the Pulse agent inside the Beat Addicts browser DAW. It is optimized for local training and inference, and can later be deployed to a production GPU server without code changes.
+AI-powered music production platform with pattern generation, drum sequencing, and real-time audio processing.
 
-## Features
+## Project Structure
 
-- **FastAPI** service with dedicated endpoints for each creative stage (`/generate/drums`, `/generate/bassline`, `/generate/melody`, `/generate/chords`, `/generate/arrangement`).
-- **Phase 0 legal enforcement**: every request carries user consent metadata; training is only enabled when opt-in is true.
-- **Supabase logging**: accepted/rejected generations, genre preferences, MIDI uploads, and training batches are stored for evaluation.
-- **Model registry**: all checkpoints live in `models/` so the inference server always boots with the latest weights.
-- **Local-first training**: GPU-accelerated PyTorch scripts under `training/` let you fine-tune on your laptop, then hot-load the weights into `models/checkpoints/`.
+| Folder     | Purpose                                             |
+| ---------- | --------------------------------------------------- |
+| `backend/` | FastAPI backend (AI engine, API, training pipeline) |
+| `src/`     | React/Vite frontend                                 |
+| `dist/`    | Production frontend build                           |
 
-## Getting Started
+## Backend (FastAPI)
+
+The backend lives in **`/backend`** and contains:
+
+- `app/` — FastAPI application, routers, services, schemas
+- `models/` — PyTorch model definitions (DrumModel, GrooveTransformer)
+- `training/` — Training pipeline, dataset loaders, evaluation
+- `inference/` — Drum pattern generation from trained models
+- `tests/` — pytest test suite
+
+### Run Locally
 
 ```bash
 cd backend
 python -m venv .venv
-. .venv/Scripts/activate  # Windows PowerShell
+.venv/Scripts/activate      # Windows
 pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Configure environment variables in a `.env` file:
+### API Endpoints
 
-```env
-SUPABASE_URL="https://<your-project>.supabase.co"
-SUPABASE_SERVICE_KEY="service-role-key"
-CORS_ORIGINS="http://localhost:5173,https://beat-addicts.app"
-MODEL_DIR="models"
-LEGAL_GENERATION_LIMIT=64
-```
-
-## Local Training Workflow
-
-1. Drop curated MIDI or rendered stems into `training/data/` (see `training/data_pipeline.py`).
-2. Run `python -m training.run_training --config training/configs/local.json` (sample arguments are inline in the script docstring).
-3. Checkpoints are saved to `models/checkpoints/` with semantic versioning; the inference service automatically loads the latest on restart.
-4. Use the `/training/batch` endpoint (already called by the frontend) to log any user-approved material that is compliant with Phase 0 rules.
-
-## Deployment Notes
-
-- Switch the `VITE_AI_API_BASE_URL` environment variable on the frontend to point to your deployed API.
-- Use `uvicorn app.main:app --host 0.0.0.0 --port 8000` behind nginx for production.
-- When moving to the cloud, mount `models/` as a persistent volume so new checkpoints propagate across releases.
+- `GET /health` — Health check
+- `POST /generate/drums` — Generate AI drum patterns
+- `POST /feedback/pattern` — Submit pattern feedback
+- `POST /training/batch` — Submit training data
+- `GET /learning/preferences` — Get learned preferences
 
 ## Deploying the Backend on Railway
 
-Production-ready with CPU-only PyTorch (~200 MB).
+The backend is production-ready for Railway deployment with CPU-only PyTorch (~200 MB).
+
+### Railway Build & Start
 
 | Setting            | Value                                              |
 | ------------------ | -------------------------------------------------- |
@@ -53,7 +50,7 @@ Production-ready with CPU-only PyTorch (~200 MB).
 | **Build Command**  | `pip install -r requirements.txt`                  |
 | **Start Command**  | `uvicorn app.main:app --host 0.0.0.0 --port $PORT` |
 
-The `Procfile` defines: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+The `Procfile` in `backend/` defines: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 
 ### Environment Variables
 
@@ -73,4 +70,10 @@ The `Procfile` defines: `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 6. Railway will auto-detect the `Procfile` and deploy
 7. Verify health at `https://<your-app>.up.railway.app/health`
 
-For more detail on each module see inline docstrings within `app/services` and `training/`.
+## Frontend (Netlify)
+
+The frontend is a Vite + React app deployed to Netlify from the `dist/` folder.
+
+## License
+
+All rights reserved. Beat Addicts is a proprietary project.
