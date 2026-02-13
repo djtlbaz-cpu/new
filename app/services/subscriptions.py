@@ -42,6 +42,15 @@ TIERS: dict[str, TierInfo] = {
         full_tool_access=False,
         description="Try the platform — 4 AI generations/month, no ownership rights",
     ),
+    "starter": TierInfo(
+        id="starter",
+        name="Starter",
+        price_cents=1999,
+        monthly_generations=20,
+        owns_creations=False,
+        full_tool_access=False,
+        description="$19.99/mo — 20 generations, limited tools",
+    ),
     "basic": TierInfo(
         id="basic",
         name="Basic",
@@ -62,7 +71,7 @@ TIERS: dict[str, TierInfo] = {
     ),
 }
 
-TIER_RANK = {"free": 0, "basic": 1, "studio": 2}
+TIER_RANK = {"free": 0, "starter": 1, "basic": 2, "studio": 3}
 
 # ── Add-on definitions ──
 

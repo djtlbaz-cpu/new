@@ -27,9 +27,10 @@ else:
 # ── Stripe ↔ tier price mapping (cents) ─────────────────────
 
 TIER_PRICES = {
-    "free":   0,
-    "basic":  2000,   # $20/mo
-    "studio": 5000,   # $50/mo
+    "free":    0,
+    "starter": 1999,   # $19.99/mo
+    "basic":   2000,   # $20/mo
+    "studio":  5000,   # $50/mo
 }
 
 ADDON_PRICES = {
