@@ -25,6 +25,18 @@ class AudioEngine {
     };
     
     this.initPromise = null;
+
+    // Map UI track names to internal sample keys
+    this.trackToSample = {
+      'Kick': 'kick',
+      'Snare': 'snare',
+      'Hi-Hat': 'hihat',
+      'Open Hat': 'openhat',
+      'Crash': 'crash',
+      'Ride': 'ride',
+      'Clap': 'perc1',
+      'Perc': 'perc2'
+    };
   }
 
   async init() {
@@ -85,12 +97,6 @@ class AudioEngine {
       console.log('Audio Engine initialized successfully');
       console.log('Available drum samples:', Object.keys(this.samples));
       console.log('Available piano notes:', Object.keys(this.pianoSamples));
-      
-      // Test audio immediately
-      setTimeout(() => {
-        console.log('Testing audio with kick sample...');
-        this.playSample('kick', 0.5);
-      }, 100);
       
       return true;
     } catch (error) {
@@ -445,6 +451,19 @@ class AudioEngine {
     }
   }
 
+  // Play a single step's active samples using pattern track names
+  playStep(patterns, stepIndex, channelVolumes = {}) {
+    if (!this.isInitialized) return;
+
+    Object.keys(patterns).forEach(track => {
+      if (patterns[track][stepIndex]) {
+        const sampleKey = this.trackToSample[track] || track.toLowerCase();
+        const vol = (channelVolumes[track] ?? 75) / 100;
+        this.playSample(sampleKey, vol * 0.8);
+      }
+    });
+  }
+
   start(patterns, bpm = 120) {
     if (!this.isInitialized) {
       console.warn('Audio engine not initialized');
@@ -463,11 +482,12 @@ class AudioEngine {
       // Play samples for current step
       Object.keys(patterns).forEach(track => {
         if (patterns[track][this.currentStep]) {
-          this.playSample(track, 0.8);
+          const sampleKey = this.trackToSample[track] || track.toLowerCase();
+          this.playSample(sampleKey, 0.8);
         }
       });
       
-      this.currentStep = (this.currentStep + 1) % 32;
+      this.currentStep = (this.currentStep + 1) % 16;
       
       this.stepInterval = setTimeout(playStep, stepTime * 1000);
     };

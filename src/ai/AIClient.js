@@ -1,10 +1,19 @@
 // AIClient.js - Pulse's bridge to the local AI engine backend
 const DEFAULT_BASE_URL = (() => {
   try {
-    return import.meta.env?.VITE_AI_API_BASE_URL ?? 'http://localhost:8000'
+    // Prefer explicit env var if set
+    if (import.meta.env?.VITE_AI_API_BASE_URL) {
+      return import.meta.env.VITE_AI_API_BASE_URL
+    }
+    // In production (Netlify), use the /api proxy that forwards to Railway
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      return '/api'
+    }
+    // Local development defaults to backend on port 8010
+    return 'http://localhost:8010'
   } catch (error) {
     console.warn('Falling back to default AI base URL:', error)
-    return 'http://localhost:8000'
+    return '/api'
   }
 })()
 
@@ -20,7 +29,7 @@ class AIClient {
   }
 
   #normalizeBaseUrl(url) {
-    if (!url) return 'http://localhost:8000'
+    if (!url) return '/api'
     return url.endsWith('/') ? url.slice(0, -1) : url
   }
 

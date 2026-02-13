@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import AudioEngine from "./audio/AudioEngine";
 import { aiWorkflow } from "./ai/AIWorkflow";
 import { localLearning } from "./ai/LocalLearning";
 import "./App.css";
@@ -156,6 +157,24 @@ function App() {
   ]);
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Audio engine ref (persists across renders)
+  const audioEngineRef = useRef(null);
+  const [audioReady, setAudioReady] = useState(false);
+
+  // Initialize audio engine (must be called from user gesture)
+  const initAudio = useCallback(async () => {
+    if (audioEngineRef.current?.isInitialized) {
+      setAudioReady(true);
+      return true;
+    }
+    if (!audioEngineRef.current) {
+      audioEngineRef.current = new AudioEngine();
+    }
+    const ok = await audioEngineRef.current.init();
+    setAudioReady(ok);
+    return ok;
+  }, []);
+
   // Timeline/Arrangement view state
   const [timelineData, setTimelineData] = useState([
     {
@@ -186,13 +205,27 @@ function App() {
     },
   ]);
 
-  // Playback simulation
+  // Playback – advance step counter AND trigger audio samples
   useEffect(() => {
     let interval;
     if (isPlaying) {
       interval = setInterval(
         () => {
-          setCurrentStep((prev) => (prev + 1) % 16);
+          setCurrentStep((prev) => {
+            const nextStep = (prev + 1) % 16;
+            // Play audio for this step
+            const engine = audioEngineRef.current;
+            if (engine?.isInitialized) {
+              // Build per-track volume map from mixer channels
+              const channelVols = {};
+              mixerChannels.forEach((ch) => {
+                if (!ch.mute) channelVols[ch.name] = ch.volume;
+                else channelVols[ch.name] = 0;
+              });
+              engine.playStep(pattern, nextStep, channelVols);
+            }
+            return nextStep;
+          });
           setCurrentTime((prev) => {
             const [minutes, seconds] = prev.split(":").map(Number);
             const totalSeconds = minutes * 60 + seconds + 1;
@@ -205,7 +238,7 @@ function App() {
       );
     }
     return () => clearInterval(interval);
-  }, [isPlaying, bpm]);
+  }, [isPlaying, bpm, pattern, mixerChannels]);
 
   // System monitoring simulation
   useEffect(() => {
@@ -219,6 +252,13 @@ function App() {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  // Sync master volume to audio engine
+  useEffect(() => {
+    if (audioEngineRef.current?.isInitialized) {
+      audioEngineRef.current.setMasterVolume(masterVolume / 100);
+    }
+  }, [masterVolume]);
 
   const toggleStep = (track, step) => {
     setPattern((prev) => ({
@@ -429,7 +469,13 @@ function App() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-center space-x-3">
                   <Button
-                    onClick={() => setIsPlaying(!isPlaying)}
+                    onClick={async () => {
+                      if (!isPlaying) {
+                        await initAudio();
+                      }
+                      setIsPlaying(!isPlaying);
+                      setCurrentStep(0);
+                    }}
                     className={`w-16 h-16 rounded-full text-2xl transition-all duration-300 ${
                       isPlaying
                         ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/25"
@@ -438,7 +484,14 @@ function App() {
                   >
                     {isPlaying ? "⏸️" : "▶️"}
                   </Button>
-                  <Button className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800">
+                  <Button
+                    onClick={() => {
+                      setIsPlaying(false);
+                      setCurrentStep(0);
+                      setCurrentTime("00:00");
+                    }}
+                    className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800"
+                  >
                     ⏹️
                   </Button>
                   <Button className="w-12 h-12 rounded-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800">
@@ -651,6 +704,19 @@ function App() {
                         <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/50">
                           16 Steps
                         </Badge>
+                        <span className="mx-2 border-l border-slate-600 h-6"></span>
+                        {["Boom Bap", "Trap", "House", "Techno"].map(
+                          (style) => (
+                            <Button
+                              key={style}
+                              onClick={() => generateAIBeat(style)}
+                              disabled={aiLoading}
+                              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs h-7 px-3"
+                            >
+                              🤖 {style}
+                            </Button>
+                          ),
+                        )}
                       </div>
                     </div>
                   </CardHeader>
