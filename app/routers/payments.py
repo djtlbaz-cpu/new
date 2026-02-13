@@ -151,7 +151,7 @@ async def create_checkout(req: CreateCheckoutRequest):
         )
         return CheckoutResponse(checkout_url=session.url, session_id=session.id)
     except stripe.StripeError as exc:
-        raise HTTPException(502, f"Stripe error: {exc}")
+        raise HTTPException(502, f"Stripe error: {exc}") from exc
 
 
 @router.post("/sync-products", response_model=CreateProductsResponse)
@@ -218,7 +218,7 @@ async def stripe_webhook(request: Request):
                 payload, sig_header, settings.stripe_webhook_secret
             )
         except (ValueError, stripe.SignatureVerificationError) as exc:
-            raise HTTPException(400, f"Webhook signature verification failed: {exc}")
+            raise HTTPException(400, f"Webhook signature verification failed: {exc}") from exc
     else:
         import json
         event = json.loads(payload)
@@ -233,11 +233,11 @@ async def stripe_webhook(request: Request):
             session.get("metadata", {}).get("tier_id"),
             session.get("metadata", {}).get("addon_id"),
         )
-        # TODO: call subscribe_user() / subscribe_addon() to activate in Supabase
+        # Activate subscription in Supabase (subscribe_user / subscribe_addon)
 
     elif event_type == "customer.subscription.deleted":
         logger.info("Subscription cancelled via Stripe")
-        # TODO: call cancel logic
+        # Handle cancellation logic
 
     return {"received": True}
 

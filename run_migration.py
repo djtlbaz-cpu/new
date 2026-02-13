@@ -82,9 +82,12 @@ def run_migration(conn):
         try:
             cur.execute(stmt)
             success += 1
-        except psycopg2.errors.DuplicateObject:
-            # Policy or index already exists — fine
-            success += 1
+        except psycopg2.Error as dup_exc:
+            if "already exists" in str(dup_exc):
+                # Policy or index already exists — fine
+                success += 1
+            else:
+                raise
         except Exception as exc:
             err = str(exc).strip().split("\n")[0]
             print(f"  Warning: {err}")

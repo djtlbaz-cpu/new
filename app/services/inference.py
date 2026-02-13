@@ -65,7 +65,7 @@ class InferenceEngine:
 
     async def generate_arrangement(self, request: GenerationRequest, summary: List[Dict[str, Any]] | None = None) -> Dict[str, Any]:
         await self.ensure_loaded()
-        tier_meta = guard_inference_request(request.user)
+        guard_inference_request(request.user)  # validates tier / limits
 
         seed_value = request.seed or random.randint(0, 10**6)
         rng = random.Random(seed_value)
