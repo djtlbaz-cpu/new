@@ -636,7 +636,7 @@ function App() {
                 </Card>
               </TabsContent>
 
-              {/* Sequencer View - FL Studio Style */}
+              {/* Sequencer View - Beat Addicts Style */}
               <TabsContent value="sequencer" className="mt-4">
                 <Card className="bg-gradient-to-br from-slate-800/95 to-slate-900/95">
                   <CardHeader className="pb-3">
@@ -769,7 +769,7 @@ function App() {
                 </Card>
               </TabsContent>
 
-              {/* Piano Roll View - FL Studio Style */}
+              {/* Piano Roll View - Beat Addicts Style */}
               <TabsContent value="piano" className="mt-4">
                 <Card className="bg-gradient-to-br from-slate-800/95 to-slate-900/95">
                   <CardHeader className="pb-3">
@@ -911,7 +911,7 @@ function App() {
                 </Card>
               </TabsContent>
 
-              {/* Professional Mixer View - FL Studio Style */}
+              {/* Professional Mixer View - Beat Addicts Style */}
               <TabsContent value="mixer" className="mt-4">
                 <Card className="bg-gradient-to-br from-slate-800/95 to-slate-900/95">
                   <CardHeader className="pb-3">

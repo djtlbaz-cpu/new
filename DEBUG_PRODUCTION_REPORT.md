@@ -153,7 +153,7 @@ beat-addicts-daw/
 ✅ Glassmorphism UI
 
 ### UI/UX
-✅ Professional FL Studio-inspired design
+✅ Professional professional design
 ✅ Responsive layout (desktop/tablet)
 ✅ Smooth animations
 ✅ Modern color scheme

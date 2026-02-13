@@ -7,7 +7,7 @@
 
 ## 🎵 Overview
 
-Beat Addicts is a professional-grade, AI-powered Digital Audio Workstation (DAW) built with modern web technologies. It features a stunning FL Studio-inspired interface with enterprise-grade functionality.
+Beat Addicts is a professional-grade, AI-powered Digital Audio Workstation (DAW) built with modern web technologies. It features a stunning professional interface with enterprise-grade functionality.
 
 ## ✨ Features
 
@@ -190,7 +190,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
-- Inspired by FL Studio's interface design
+- Inspired by Beat Addicts's interface design
 - Built with modern web technologies
 - Community feedback and contributions
 
