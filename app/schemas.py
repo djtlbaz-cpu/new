@@ -9,7 +9,6 @@ from enum import Enum
 class TierID(str, Enum):
     FREE = "free"
     STARTER = "starter"
-    BASIC = "basic"
     STUDIO = "studio"
 
 

@@ -46,19 +46,10 @@ TIERS: dict[str, TierInfo] = {
         id="starter",
         name="Starter",
         price_cents=1999,
-        monthly_generations=20,
-        owns_creations=False,
-        full_tool_access=False,
-        description="$19.99/mo — 20 generations, limited tools",
-    ),
-    "basic": TierInfo(
-        id="basic",
-        name="Basic",
-        price_cents=2000,
         monthly_generations=50,
         owns_creations=True,
         full_tool_access=False,
-        description="$20/mo — 50 generations, ownership rights, limited tools",
+        description="$19.99/mo — 50 generations, ownership rights, limited tools",
     ),
     "studio": TierInfo(
         id="studio",
@@ -71,7 +62,7 @@ TIERS: dict[str, TierInfo] = {
     ),
 }
 
-TIER_RANK = {"free": 0, "starter": 1, "basic": 2, "studio": 3}
+TIER_RANK = {"free": 0, "starter": 1, "studio": 2}
 
 # ── Add-on definitions ──
 
@@ -81,7 +72,7 @@ ADDONS: dict[str, AddonInfo] = {
         name="Voice Cloning",
         price_cents=999,
         description="$9.99/mo — Clone and apply vocal styles",
-        requires_tier="basic",
+        requires_tier="starter",
     ),
     "stem_separation": AddonInfo(
         id="stem_separation",
@@ -102,7 +93,7 @@ ADDONS: dict[str, AddonInfo] = {
         name="Auto-Mastering",
         price_cents=1499,
         description="$14.99/mo — AI mastering for finished tracks",
-        requires_tier="basic",
+        requires_tier="starter",
     ),
     "collab_rooms": AddonInfo(
         id="collab_rooms",
