@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* FL Studio Inspired Theme */
 * {
   margin: 0;
