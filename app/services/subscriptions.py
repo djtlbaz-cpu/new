@@ -46,19 +46,19 @@ TIERS: dict[str, TierInfo] = {
         id="starter",
         name="Starter",
         price_cents=1999,
-        monthly_generations=50,
+        monthly_generations=25,
         owns_creations=True,
         full_tool_access=False,
-        description="$19.99/mo — 50 generations, ownership rights, limited tools",
+        description="$19.99/mo — 25 generations, ownership rights, limited tools",
     ),
     "studio": TierInfo(
         id="studio",
         name="Studio",
         price_cents=5000,
-        monthly_generations=500,
+        monthly_generations=250,
         owns_creations=True,
         full_tool_access=True,
-        description="$50/mo — 500 generations, full tool access, ownership rights",
+        description="$50/mo — 250 generations, full tool access, ownership rights",
     ),
 }
 

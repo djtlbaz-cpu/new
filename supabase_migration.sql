@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS subscription_tiers (
 
 INSERT INTO subscription_tiers (id, name, price_cents, monthly_generations, owns_creations, full_tool_access, description) VALUES
     ('free',    'Free',    0,    4,   FALSE, FALSE, 'Try the platform — 4 AI generations/month, no ownership rights'),
-    ('starter', 'Starter', 1999, 50,  TRUE,  FALSE, '$19.99/mo — 50 generations, ownership rights, limited tools'),
-    ('studio', 'Studio', 5000, 500, TRUE,  TRUE,  '$50/mo — 500 generations, full tool access, ownership rights')
+    ('starter', 'Starter', 1999, 25,  TRUE,  FALSE, '$19.99/mo — 25 generations, ownership rights, limited tools'),
+    ('studio', 'Studio', 5000, 250, TRUE,  TRUE,  '$50/mo — 250 generations, full tool access, ownership rights')
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     price_cents = EXCLUDED.price_cents,
