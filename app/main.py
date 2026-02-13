@@ -34,6 +34,16 @@ async def startup_event() -> None:
     await engine.ensure_loaded()
 
 
+@app.get("/")
+async def root() -> dict:
+    return {
+        "app": "Beat Addicts AI Engine",
+        "version": "0.1.0",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 @app.get("/health")
 async def healthcheck() -> dict:
     from .services.database import get_database_gateway
