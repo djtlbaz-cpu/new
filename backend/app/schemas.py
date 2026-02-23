@@ -211,3 +211,15 @@ class MidiUploadPayload(BaseModel):
     url: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
     user: UserContext
+
+
+class LyricsRequest(BaseModel):
+    theme: str
+    genre: Optional[str] = None
+    user: Optional[UserContext] = None
+
+
+class LyricsResponse(BaseModel):
+    success: bool = True
+    lyrics: str
+    genre: str

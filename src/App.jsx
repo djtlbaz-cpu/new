@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import AudioEngine from "./audio/AudioEngine";
 import { aiWorkflow } from "./ai/AIWorkflow";
+import { aiClient } from "./ai/AIClient";
 import { localLearning } from "./ai/LocalLearning";
 import "./App.css";
 
@@ -58,6 +59,10 @@ function App() {
     { type: "ai", text: "Engine online. Ready for AI-powered composition." },
   ]);
   const [aiLoading, setAiLoading] = useState(false);
+  const [lyricsTheme, setLyricsTheme] = useState("");
+  const [lyricsGenre, setLyricsGenre] = useState("");
+  const [lyricsOutput, setLyricsOutput] = useState("");
+  const [lyricsLoading, setLyricsLoading] = useState(false);
 
   const [timelineData, setTimelineData] = useState([
     { id: 1, name: "Drums", clips: [{ start: 0, length: 4, color: "#e84855", name: "Pattern A" }, { start: 8, length: 4, color: "#e84855", name: "Pattern B" }] },
@@ -154,6 +159,24 @@ function App() {
       setAiMessages((p) => [...p, { type: "ai", text: `${PULSE} couldn't reach the engine. Pattern unchanged.` }]);
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  const handleGenerateLyrics = async () => {
+    if (!lyricsTheme.trim()) return;
+    setLyricsLoading(true);
+    setLyricsOutput("");
+    try {
+      const result = await aiClient.generateLyrics({
+        theme: lyricsTheme,
+        genre: lyricsGenre || undefined,
+        user: localLearning.getUserContext(),
+      });
+      if (result?.lyrics) setLyricsOutput(result.lyrics);
+    } catch {
+      setLyricsOutput("Could not reach the lyrics engine. Please try again.");
+    } finally {
+      setLyricsLoading(false);
     }
   };
 
@@ -613,8 +636,54 @@ function App() {
                 <button key={s} className="ai-btn" disabled={aiLoading} onClick={() => generateAIBeat(s)}>✦ {s}</button>
               ))}
             </div>
+
+            {/* ── Lyrics generator ── */}
+            <div style={{ borderTop: "1px solid var(--daw-surface-4)", marginTop: 8, paddingTop: 8 }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: "var(--daw-text-muted)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+                AI Lyrics
+              </div>
+              <input
+                type="text"
+                placeholder="Theme (e.g. dreams and freedom)"
+                value={lyricsTheme}
+                onChange={(e) => setLyricsTheme(e.target.value)}
+                style={{
+                  width: "100%", background: "var(--daw-surface-3)", border: "1px solid var(--daw-surface-4)",
+                  color: "var(--daw-text)", padding: "3px 6px", fontSize: 10, borderRadius: 3, boxSizing: "border-box", marginBottom: 4,
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Genre (optional)"
+                value={lyricsGenre}
+                onChange={(e) => setLyricsGenre(e.target.value)}
+                style={{
+                  width: "100%", background: "var(--daw-surface-3)", border: "1px solid var(--daw-surface-4)",
+                  color: "var(--daw-text)", padding: "3px 6px", fontSize: 10, borderRadius: 3, boxSizing: "border-box", marginBottom: 4,
+                }}
+              />
+              <button
+                className="ai-btn"
+                disabled={lyricsLoading || !lyricsTheme.trim()}
+                onClick={handleGenerateLyrics}
+                style={{ width: "100%" }}
+              >
+                {lyricsLoading ? "Generating…" : "✦ Generate Lyrics"}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* ── Lyrics output ── */}
+        {lyricsOutput && (
+          <div style={{
+            borderTop: "1px solid var(--daw-surface-4)", padding: "8px 12px",
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "var(--daw-text-dim)",
+            whiteSpace: "pre-wrap", maxHeight: 140, overflowY: "auto", background: "var(--daw-surface-2)",
+          }}>
+            {lyricsOutput}
+          </div>
+        )}
       </div>
 
       {/* ── Status bar ── */}

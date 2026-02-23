@@ -89,6 +89,10 @@ class AIClient {
     return this.#generate('arrangement', payload)
   }
 
+  generateLyrics(payload) {
+    return this.#generate('lyrics', payload)
+  }
+
   submitPatternFeedback(payload) {
     return this.#post('/feedback/pattern', payload)
   }
