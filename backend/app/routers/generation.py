@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Depends
 
-from ..schemas import GenerationRequest
+from ..schemas import GenerationRequest, LyricsRequest, LyricsResponse
 from ..services.inference import get_inference_engine, InferenceEngine
+from ..services.lyrics_service import LyricsGenerator, _detect_genre
 
 router = APIRouter()
+
+_lyrics_generator = LyricsGenerator()
 
 
 async def _generate_section(section: str, request: GenerationRequest, engine: InferenceEngine) -> dict:
@@ -29,3 +32,11 @@ async def generate_chords(request: GenerationRequest, engine: InferenceEngine = 
 async def generate_arrangement(request: GenerationRequest, engine: InferenceEngine = Depends(get_inference_engine)):
     summary = request.sections or (request.metadata.get("sections") if request.metadata else None)
     return await engine.generate_arrangement(request, summary)
+
+
+@router.post("/lyrics", response_model=LyricsResponse)
+async def generate_lyrics(request: LyricsRequest) -> LyricsResponse:
+    """Generate structured song lyrics for the given theme and optional genre."""
+    resolved_genre = request.genre.lower().strip() if request.genre else _detect_genre(request.theme)
+    lyrics = _lyrics_generator.generate(request.theme, resolved_genre)
+    return LyricsResponse(lyrics=lyrics, genre=resolved_genre)
